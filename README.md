@@ -4,13 +4,13 @@ A customizable hierarchical navigation component for SharePoint and other web ap
 
 ## Preview
 
-<img width="374" height="367" alt="Screenshot 2026-03-05 at 12 53 17" src="https://github.com/user-attachments/assets/329de45c-019a-4c26-a245-f00ab79e0305" />
+- <img width="374" height="367" alt="Screenshot 2026-03-05 at 12 53 17" src="https://github.com/user-attachments/assets/329de45c-019a-4c26-a245-f00ab79e0305" />
 
-<img width="377" height="599" alt="Screenshot 2026-03-05 at 12 53 33" src="https://github.com/user-attachments/assets/a870f8c4-3917-4346-8806-c4e28c9f98e4" />
+- <img width="377" height="599" alt="Screenshot 2026-03-05 at 12 53 33" src="https://github.com/user-attachments/assets/a870f8c4-3917-4346-8806-c4e28c9f98e4" />
 
-<img width="226" height="283" alt="Screenshot 2026-03-05 at 12 53 45" src="https://github.com/user-attachments/assets/44f5e92d-7f85-4936-b331-a4e815e175da" />
+- <img width="226" height="283" alt="Screenshot 2026-03-05 at 12 53 45" src="https://github.com/user-attachments/assets/44f5e92d-7f85-4936-b331-a4e815e175da" />
 
-<img width="465" height="454" alt="Screenshot 2026-03-05 at 12 53 53" src="https://github.com/user-attachments/assets/83e00f53-0f99-412a-801b-82f7925e840f" />
+- <img width="465" height="454" alt="Screenshot 2026-03-05 at 12 53 53" src="https://github.com/user-attachments/assets/83e00f53-0f99-412a-801b-82f7925e840f" />
 
 ## ✨ Features
 
