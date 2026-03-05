@@ -1,0 +1,1479 @@
+<link rel="stylesheet" href="https://kiaeu.sharepoint.com/sites/kianetkat/SiteAssets/CSS/general.css">
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    #nav-container {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        max-width: 100%;
+        overflow: visible;
+        min-height: 1px;
+    }
+    .nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: #e8e4d9;
+        color: #4a4a4a;
+        position: relative;
+        z-index: 10;
+    }
+    #nav-container .edit-btn {
+        position: relative;
+        z-index: 11;
+        cursor: pointer;
+        pointer-events: auto;
+    }
+
+    .nav-header .edit-btn {
+        margin-left: auto;
+    }
+
+    .edit-btn {
+        background: rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        color: #333;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .edit-btn:hover {
+        background: rgba(0, 0, 0, 0.12);
+    }
+
+    .nav-mode {
+        display: none;
+        padding: 0;
+    }
+
+    .nav-mode.active {
+        display: block !important;
+        visibility: visible !important;
+        min-height: 120px;
+        position: relative;
+        z-index: 5;
+    }
+
+    /* View panel visible by default so content shows before JS runs */
+    #view-mode {
+        display: block !important;
+        visibility: visible !important;
+        min-height: 120px;
+        position: relative;
+        z-index: 5;
+    }
+    #edit-mode {
+        display: none !important;
+    }
+    #view-mode .nav-list {
+        list-style: none;
+        margin: 0;
+        padding: 8px 0;
+        background: #e8e4d9;
+        min-height: 200px;
+    }
+
+    #view-mode .nav-list ul {
+        list-style: none;
+        margin: 0;
+        padding-left: 20px;
+        border-left: none;
+    }
+
+    #view-mode .nav-item {
+        margin: 0;
+        position: relative;
+    }
+
+    #view-mode .nav-item-content {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 0;
+        transition: background 0.15s;
+        background: transparent;
+        border: none;
+    }
+
+    #view-mode .nav-item-content:hover {
+        background: rgba(0, 0, 0, 0.06);
+    }
+
+    #view-mode .nav-link {
+        flex: 1;
+        color: #4a4a4a;
+        text-decoration: none;
+        cursor: pointer;
+        word-break: break-word;
+        font-size: 14px;
+    }
+
+    #view-mode .nav-link:hover {
+        color: #333;
+        text-decoration: none;
+    }
+
+    #view-mode .nav-link.text-only {
+        color: #6a6a6a;
+        font-style: italic;
+        cursor: default;
+    }
+
+    /* Current page: light text on dark beige */
+    #view-mode .nav-item-content.active-link .nav-link {
+        color: #f5f0e8;
+        font-weight: 500;
+    }
+
+    #view-mode .nav-item-content.active-link {
+        background: #7a6a52;
+    }
+
+    /* Parent of current page: light text on medium dark beige */
+    #view-mode .nav-item-content.active-parent .nav-link {
+        color: #f5f0e8;
+    }
+
+    #view-mode .nav-item-content.active-parent {
+        background: #9c8576;
+    }
+
+    /* Expand/collapse chevron */
+    #view-mode .nav-chevron {
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #a0a0a0;
+        flex-shrink: 0;
+        border: none;
+        background: none;
+        padding: 0;
+        font-size: 12px;
+    }
+
+    #view-mode .nav-chevron:hover {
+        color: #333;
+    }
+
+    .nav-item.has-children.collapsed > ul {
+        display: none;
+    }
+
+    .nav-item.has-children .nav-chevron {
+        transition: transform 0.2s;
+    }
+
+    .nav-item.has-children.collapsed .nav-chevron {
+        transform: rotate(-90deg);
+    }
+
+    /* === EDIT MODE: список как в SharePoint === */
+    #edit-mode {
+        padding: 16px;
+        background: #fff;
+        min-height: 120px;
+        position: relative;
+        z-index: 5;
+    }
+    #edit-mode .nav-list {
+        min-height: 80px;
+    }
+
+    #edit-mode .edit-nav-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #323130;
+        margin: 0 0 12px 0;
+    }
+
+    #edit-mode .nav-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+    }
+
+    #edit-mode .nav-list ul {
+        padding-left: 24px;
+        margin: 2px 0 0 0;
+        border-left: none;
+    }
+
+    #edit-mode .nav-item-content {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 8px;
+        background: transparent;
+        border-radius: 4px;
+    }
+    #edit-mode .nav-item {
+        overflow: visible;
+    }
+
+    #edit-mode .nav-item-content:hover {
+        background: #f3f2f1;
+    }
+
+    #edit-mode .nav-link {
+        color: #0078d4;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    #edit-mode .nav-link:hover {
+        text-decoration: underline;
+    }
+
+    #edit-mode .nav-item-content {
+        cursor: grab;
+    }
+    #edit-mode .nav-item-content:active {
+        cursor: grabbing;
+    }
+    #edit-mode .nav-item-content.dragging {
+        opacity: 0.5;
+    }
+    #edit-mode .nav-item.drop-before .nav-item-content {
+        box-shadow: inset 0 -2px 0 0 #0078d4;
+    }
+    #edit-mode .nav-item.drop-after .nav-item-content {
+        box-shadow: inset 0 2px 0 0 #0078d4;
+    }
+    #edit-mode .nav-item.drop-child .nav-item-content {
+        background: #e6f2fa;
+        outline: 2px dashed #0078d4;
+    }
+    #edit-mode .item-menu-btn {
+        opacity: 1;
+        visibility: visible;
+        min-width: 32px;
+    }
+
+    .item-menu-btn {
+        background: transparent;
+        border: none;
+        font-size: 16px;
+        line-height: 1;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #605e5c;
+    }
+
+    .item-menu-btn:hover {
+        background: #edebe9;
+        color: #323130;
+    }
+
+    .edit-add-line {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 12px;
+        padding: 8px 0;
+        position: relative;
+    }
+
+    .edit-add-line::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 1px;
+        background: #0078d4;
+    }
+
+    .edit-add-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #0078d4;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+        padding: 0;
+    }
+
+    .edit-add-btn:hover {
+        background: #106ebe;
+    }
+
+    .edit-mode-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .edit-mode-actions .btn-primary {
+        background: #0078d4;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .edit-mode-actions .btn-secondary {
+        background: #fff;
+        color: #323130;
+        border: 1px solid #8a8886;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    /* Context menu – attached to button, scrolls with page */
+    .item-context-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 2px;
+        background: white;
+        border: 1px solid #edebe9;
+        border-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10001;
+        min-width: 180px;
+        display: none;
+    }
+
+    .item-context-menu.show {
+        display: block;
+    }
+
+    .menu-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #323130;
+    }
+
+    .menu-item:hover {
+        background: #f3f2f1;
+    }
+
+    .menu-item.delete {
+        color: #a4262c;
+        border-top: 1px solid #edebe9;
+        margin-top: 5px;
+        padding-top: 10px;
+    }
+
+    .menu-divider {
+        height: 1px;
+        background: #edebe9;
+        margin: 5px 0;
+    }
+
+    /* Dialog – high z-index to appear above SharePoint UI */
+    .dialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+    }
+    .dialog[style*="display: flex"],
+    .dialog.show {
+        display: flex !important;
+    }
+
+    .dialog-content {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        width: 450px;
+        max-width: 90%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .dialog-content h4 {
+        margin: 0 0 20px 0;
+        color: #333;
+        font-size: 20px;
+        font-weight: 500;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #0078d4;
+        box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+    }
+
+    .form-group.checkbox {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group.checkbox input {
+        width: auto;
+    }
+
+    .dialog-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 25px;
+    }
+
+    .btn-primary {
+        background: #0078d4;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn-primary:hover {
+        background: #005a9e;
+    }
+
+    .btn-secondary {
+        background: #f8f9fa;
+        color: #333;
+        border: 1px solid #ced4da;
+        padding: 10px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn-secondary:hover {
+        background: #e9ecef;
+    }
+
+    .dialog-save:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>
+
+<div id="nav-container" class="custom-nav-container">
+    <div class="nav-header">
+        <button id="edit-toggle" class="edit-btn">Edit</button>
+    </div>
+
+    <!-- View mode: navigation with hierarchy and current page highlight -->
+    <div id="view-mode" class="nav-mode active">
+        <ul id="nav-list" class="nav-list"></ul>
+    </div>
+
+    <!-- Edit mode: list with actions -->
+    <div id="edit-mode" class="nav-mode">
+        <h4 class="edit-nav-title">Edit navigation</h4>
+        <ul id="edit-nav-list" class="nav-list"></ul>
+        <div class="edit-add-line">
+            <button type="button" id="add-root-link" class="edit-add-btn" title="Add link">+</button>
+        </div>
+        <div class="edit-mode-actions">
+            <button type="button" id="edit-save" class="btn-primary">Save</button>
+            <button type="button" id="edit-cancel" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Контекстное меню (шаблон) -->
+<div id="context-menu-template" style="display: none;">
+    <div class="item-context-menu">
+        <div class="menu-item edit-item">✏️ Edit</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item move-up-item">⬆️ Move up</div>
+        <div class="menu-item make-sub-item">⬇️ Make sub link</div>
+        <div class="menu-item promote-item">⬆️ Promote</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item delete-item delete">🗑️ Remove</div>
+    </div>
+</div>
+
+<!-- Диалог добавления/редактирования ссылки (как в SharePoint) -->
+<div id="link-dialog" class="dialog" style="display: none;">
+    <div class="dialog-content">
+        <h4 id="dialog-title">Add</h4>
+
+        <div class="form-group">
+            <label>Choose an option</label>
+            <select id="link-type">
+                <option value="link">Link</option>
+                <option value="text">Label</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="link-url" placeholder="http://">
+        </div>
+
+        <div class="form-group">
+            <label>Display name</label>
+            <input type="text" id="link-title" placeholder="Type the display text">
+        </div>
+
+        <div class="form-group checkbox">
+            <label>
+                <input type="checkbox" id="link-new-tab"> Open in a new tab
+            </label>
+        </div>
+
+        <div class="dialog-buttons">
+            <button id="dialog-save" class="btn-primary" disabled>OK</button>
+            <button id="dialog-cancel" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    class CustomNavigation {
+        constructor() {
+            this.navData = [];
+            this.currentEditItem = null;
+            this.editingItem = null;
+            this.currentMenuId = null;
+            this.expandedIds = new Set();
+            this.init();
+        }
+
+        init() {
+            var self = this;
+            this.loadData();
+            this.loadExpandedState();
+            this.cacheElements();
+
+            function refreshNav() {
+                self.cacheElements();
+                if (self.container) {
+                    self.ensureViewModeVisible();
+                    self.render();
+                    self.highlightCurrentPage();
+                }
+            }
+
+            window.addEventListener('popstate', refreshNav);
+            window.addEventListener('load', refreshNav);
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') refreshNav();
+            });
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted) {
+                    try {
+                        if (window.top && window.top !== window) window.top.location.reload();
+                        else location.reload();
+                    } catch (err) {
+                        location.reload();
+                    }
+                }
+            });
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.item-context-menu') && !e.target.closest('.item-menu-btn')) {
+                    self.closeAllMenus();
+                }
+            });
+
+            var refreshTimeout = null;
+            function scheduleRefresh() {
+                if (refreshTimeout) clearTimeout(refreshTimeout);
+                refreshTimeout = setTimeout(function() {
+                    refreshTimeout = null;
+                    refreshNav();
+                }, 150);
+            }
+            var observer = new MutationObserver(function(mutations) {
+                var needRefresh = false;
+                for (var i = 0; i < mutations.length; i++) {
+                    var m = mutations[i];
+                    if (m.addedNodes && m.addedNodes.length) {
+                        for (var j = 0; j < m.addedNodes.length; j++) {
+                            var node = m.addedNodes[j];
+                            if (node.nodeType !== 1) continue;
+                            if (node.id === 'nav-container' || node.classList && node.classList.contains('custom-nav-container')) needRefresh = true;
+                            if (node.querySelector && (node.querySelector('#nav-container') || node.querySelector('#view-mode') || node.querySelector('#nav-list'))) needRefresh = true;
+                        }
+                    }
+                    if (m.target && m.target.id === 'nav-container' && m.addedNodes && m.addedNodes.length) needRefresh = true;
+                }
+                if (needRefresh) scheduleRefresh();
+            });
+            try {
+                observer.observe(document.body, { childList: true, subtree: true });
+            } catch (e) {}
+
+            if (!this.container) {
+                [100, 300, 600, 1000, 2000].forEach(function(delay) {
+                    setTimeout(function() {
+                        if (self.container) return;
+                        self.loadData();
+                        self.loadExpandedState();
+                        self.cacheElements();
+                        if (self.container) {
+                            self.ensureViewModeVisible();
+                            self.attachEvents();
+                            self.render();
+                            self.updateEditButtonVisibility();
+                            self.attachViewLinkNavigation();
+                            [0, 80, 250, 500].forEach(function(d) { setTimeout(refreshNav, d); });
+                        }
+                    }, delay);
+                });
+                return;
+            }
+            this.ensureViewModeVisible();
+            this.attachEvents();
+            this.render();
+            this.updateEditButtonVisibility();
+            this.attachViewLinkNavigation();
+            setTimeout(function() { self.highlightCurrentPage(); }, 100);
+            [0, 50, 150, 300, 600, 1000, 2000].forEach(function(delay) {
+                setTimeout(refreshNav, delay);
+            });
+        }
+
+        attachViewLinkNavigation() {
+            if (!this.container) return;
+            var self = this;
+            this.container.addEventListener('click', function(e) {
+                var link = e.target.closest('#view-mode .nav-link');
+                if (!link || link.tagName !== 'A') return;
+                var href = link.getAttribute('href');
+                if (!href || href === '#') return;
+                var openInNewTab = link.getAttribute('target') === '_blank';
+                e.preventDefault();
+                e.stopPropagation();
+                var url = link.href;
+                try {
+                    if (openInNewTab) {
+                        (window.top || window).open(url, '_blank', 'noopener,noreferrer');
+                    } else if (window.top && window.top !== window) {
+                        window.top.location.href = url;
+                    } else {
+                        window.location.href = url;
+                    }
+                } catch (err) {
+                    if (openInNewTab) window.open(url, '_blank', 'noopener,noreferrer');
+                    else window.location.href = url;
+                }
+            });
+        }
+
+        cacheElements() {
+            this.container = document.getElementById('nav-container') || document.querySelector('.custom-nav-container');
+            console.log('[CustomNav] cacheElements: container=', !!this.container);
+            if (!this.container) return;
+            this.viewMode = this.container.querySelector('#view-mode');
+            this.editMode = this.container.querySelector('#edit-mode');
+            this.navList = this.container.querySelector('#nav-list');
+            this.editNavList = this.container.querySelector('#edit-nav-list');
+            this.editToggle = this.container.querySelector('#edit-toggle');
+            this.addRootBtn = this.container.querySelector('#add-root-link');
+            this.editSave = this.container.querySelector('#edit-save');
+            this.editCancel = this.container.querySelector('#edit-cancel');
+            this.dialog = document.getElementById('link-dialog') || document.querySelector('#link-dialog') || document.querySelector('.dialog');
+            this.dialogTitleEl = document.getElementById('dialog-title') || document.querySelector('#dialog-title');
+            this.dialogTitle = document.getElementById('link-title') || document.querySelector('#link-title');
+            this.dialogUrl = document.getElementById('link-url') || document.querySelector('#link-url');
+            this.dialogNewTab = document.getElementById('link-new-tab') || document.querySelector('#link-new-tab');
+            this.dialogType = document.getElementById('link-type') || document.querySelector('#link-type');
+            this.dialogSave = document.getElementById('dialog-save') || document.querySelector('#dialog-save');
+            this.dialogCancel = document.getElementById('dialog-cancel') || document.querySelector('#dialog-cancel');
+            console.log('[CustomNav] cacheElements: editMode=', !!this.editMode, 'editNavList=', !!this.editNavList, 'addRootBtn=', !!this.addRootBtn, 'dialog=', !!this.dialog);
+        }
+
+        updateEditButtonVisibility() {
+            if (!this.editToggle) return;
+            this.editToggle.style.display = 'inline-block';
+        }
+
+        ensureViewModeVisible() {
+            if (!this.container) return;
+            if (!this.viewMode || !this.editMode) this.cacheElements();
+            if (!this.viewMode || !this.editMode) return;
+            this.viewMode.classList.add('active');
+            this.editMode.classList.remove('active');
+            this.viewMode.style.setProperty('display', 'block', 'important');
+            this.editMode.style.setProperty('display', 'none', 'important');
+            this.viewMode.style.setProperty('visibility', 'visible', 'important');
+            this.editMode.style.setProperty('visibility', 'visible', 'important');
+            if (this.editToggle) this.editToggle.textContent = 'Edit';
+        }
+
+        attachEvents() {
+            if (this.editToggle) {
+                this.editToggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.toggleEditMode(e);
+                });
+                this.editToggle.addEventListener('mousedown', (e) => { e.stopPropagation(); });
+            }
+            if (this.editSave) this.editSave.addEventListener('click', () => this.saveAndExitEdit());
+            if (this.editCancel) this.editCancel.addEventListener('click', () => this.cancelEdit());
+            if (this.addRootBtn) {
+                this.addRootBtn.addEventListener('click', (e) => { e.preventDefault(); this.addRootLink(); });
+                console.log('[CustomNav] attachEvents: addRootBtn listener attached');
+            } else {
+                console.warn('[CustomNav] attachEvents: addRootBtn not found');
+            }
+            if (this.dialogSave) this.dialogSave.addEventListener('click', () => this.saveLink());
+            if (this.dialogCancel) this.dialogCancel.addEventListener('click', () => this.closeDialog());
+            if (this.dialog) this.dialog.addEventListener('click', (e) => { if (e.target === this.dialog) this.closeDialog(); });
+
+            if (this.dialogTitle) this.dialogTitle.addEventListener('input', () => this.validateDialog());
+            if (this.dialogUrl) this.dialogUrl.addEventListener('input', () => this.validateDialog());
+            if (this.dialogType) this.dialogType.addEventListener('change', () => this.validateDialog());
+
+            if (this.editNavList) {
+                var self = this;
+                this.editNavList.addEventListener('click', function(e) {
+                    var target = e.target.closest('.item-menu-btn');
+                    if (target) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var li = target.closest('.nav-item');
+                        var id = li && li.getAttribute('data-id');
+                        if (id) { self.toggleMenu(id, e); }
+                        return;
+                    }
+                    target = e.target.closest('.item-context-menu .menu-item');
+                    if (target && !target.classList.contains('delete')) {
+                        e.preventDefault();
+                        var li = target.closest('.nav-item');
+                        var id = li && li.getAttribute('data-id');
+                        if (!id) return;
+                        var text = (target.textContent || '').trim();
+                        if (text.indexOf('Edit') === 0) self.editItem(id);
+                        else if (text.indexOf('Move up') === 0) self.moveUp(id);
+                        else if (text.indexOf('Move down') === 0) self.moveDown(id);
+                        else if (text.indexOf('Make sub') === 0) self.demoteToSubLink(id);
+                        else if (text.indexOf('Promote') === 0) self.promoteSubLink(id);
+                        else if (text.indexOf('Add sub') === 0) self.addSubLink(id);
+                        self.closeAllMenus();
+                    }
+                    if (e.target.closest('.menu-item.delete')) {
+                        var li = e.target.closest('.nav-item');
+                        var id = li && li.getAttribute('data-id');
+                        if (id) self.deleteItem(id);
+                        self.closeAllMenus();
+                    }
+                });
+                console.log('[CustomNav] attachEvents: edit list delegation attached');
+            }
+        }
+
+        loadData() {
+            try {
+                const saved = localStorage.getItem('customNavData');
+                if (saved) {
+                    this.navData = JSON.parse(saved);
+                } else {
+                    this.navData = [
+                        { id: this.generateId(), title: 'Home', url: '/', openInNewTab: false, type: 'link', children: [] },
+                        { id: this.generateId(), title: 'Documents', url: '/documents', openInNewTab: false, type: 'link', children: [] },
+                        { id: this.generateId(), title: 'Pages', url: '/pages', openInNewTab: false, type: 'link', children: [] },
+                        { id: this.generateId(), title: 'Site contents', url: '/sites/Merck/_layouts/15/viewlsts.aspx', openInNewTab: false, type: 'link', children: [] }
+                    ];
+                }
+            } catch (e) {
+                console.error('CustomNav load error:', e);
+                this.navData = [];
+            }
+        }
+
+        loadExpandedState() {
+            try {
+                const saved = localStorage.getItem('customNavExpanded');
+                if (saved) {
+                    this.expandedIds = new Set(JSON.parse(saved));
+                } else {
+                    this.expandAllParents(this.navData);
+                }
+            } catch (e) {
+                this.expandAllParents(this.navData);
+            }
+        }
+
+        expandAllParents(items) {
+            (items || []).forEach(item => {
+                if (item.children && item.children.length > 0) {
+                    this.expandedIds.add(item.id);
+                    this.expandAllParents(item.children);
+                }
+            });
+        }
+
+        saveExpandedState() {
+            try {
+                localStorage.setItem('customNavExpanded', JSON.stringify([...this.expandedIds]));
+            } catch (e) {}
+        }
+
+        saveData() {
+            try {
+                localStorage.setItem('customNavData', JSON.stringify(this.navData));
+            } catch (e) {
+                console.error('CustomNav save error:', e);
+            }
+        }
+
+        generateId() {
+            return Date.now() + Math.random().toString(36).substr(2, 9);
+        }
+
+        toggleEditMode(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (e && e.stopPropagation) e.stopPropagation();
+            try {
+                if (!this.editMode || !this.viewMode) return;
+                var isEdit = this.editMode.classList.contains('active');
+                if (isEdit) {
+                    this.viewMode.classList.add('active');
+                    this.editMode.classList.remove('active');
+                    this.viewMode.style.setProperty('display', 'block', 'important');
+                    this.editMode.style.setProperty('display', 'none', 'important');
+                    if (this.editToggle) this.editToggle.textContent = 'Edit';
+                } else {
+                    this.viewMode.classList.remove('active');
+                    this.editMode.classList.add('active');
+                    this.viewMode.style.setProperty('display', 'none', 'important');
+                    this.editMode.style.setProperty('display', 'block', 'important');
+                    if (this.editToggle) this.editToggle.textContent = 'View';
+                }
+                this.render();
+            } catch (err) {
+                console.warn('CustomNav toggleEditMode:', err);
+            }
+        }
+
+        saveAndExitEdit() {
+            this.saveData();
+            this.viewMode.classList.add('active');
+            this.editMode.classList.remove('active');
+            this.viewMode.style.setProperty('display', 'block', 'important');
+            this.editMode.style.setProperty('display', 'none', 'important');
+            if (this.editToggle) this.editToggle.textContent = 'Edit';
+            this.render();
+        }
+
+        cancelEdit() {
+            this.viewMode.classList.add('active');
+            this.editMode.classList.remove('active');
+            this.viewMode.style.setProperty('display', 'block', 'important');
+            this.editMode.style.setProperty('display', 'none', 'important');
+            if (this.editToggle) this.editToggle.textContent = 'Edit';
+            this.render();
+        }
+
+        render() {
+            this.renderViewMode();
+            this.renderEditMode();
+        }
+
+        openDialog() {
+            if (!this.dialog) return;
+            var doc = this.dialog.ownerDocument || document;
+            if (this.dialog.parentNode !== doc.body) {
+                try { doc.body.appendChild(this.dialog); } catch (e) {}
+            }
+            this.dialog.style.setProperty('display', 'flex', 'important');
+            this.dialog.style.setProperty('visibility', 'visible', 'important');
+            this.dialog.classList.add('show');
+        }
+
+        renderEditMode() {
+            if (!this.editNavList) {
+                console.log('[CustomNav] renderEditMode: editNavList is null, skip');
+                return;
+            }
+            const html = this.renderNavItems(this.navData, false);
+            this.editNavList.innerHTML = html;
+            this.attachEditModeDragDrop();
+            console.log('[CustomNav] renderEditMode: rendered', this.navData.length, 'root items, html length=', html.length);
+        }
+
+        attachEditModeDragDrop() {
+            if (!this.editNavList) return;
+            var self = this;
+            this.editNavList.addEventListener('dragstart', function(e) {
+                var content = e.target.closest('.nav-item-content');
+                if (!content || !content.draggable) return;
+                var id = content.getAttribute('data-id');
+                if (!id) return;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', id);
+                e.dataTransfer.setData('application/json', JSON.stringify({ id: id }));
+                self.draggedItemId = id;
+                content.classList.add('dragging');
+            });
+            this.editNavList.addEventListener('dragend', function(e) {
+                document.querySelectorAll('#edit-mode .nav-item-content.dragging').forEach(function(el) { el.classList.remove('dragging'); });
+                document.querySelectorAll('#edit-mode .nav-item.drop-before, #edit-mode .nav-item.drop-after, #edit-mode .nav-item.drop-child').forEach(function(el) {
+                    el.classList.remove('drop-before', 'drop-after', 'drop-child');
+                });
+                self.draggedItemId = null;
+                self.dropTargetId = null;
+                self.dropMode = null;
+            });
+            this.editNavList.addEventListener('dragover', function(e) {
+                if (!self.draggedItemId) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                var el = document.elementFromPoint(e.clientX, e.clientY);
+                var item = el && el.closest('.nav-item');
+                document.querySelectorAll('#edit-mode .nav-item').forEach(function(n) {
+                    n.classList.remove('drop-before', 'drop-after', 'drop-child');
+                });
+                if (!item) { self.dropTargetId = null; self.dropMode = null; return; }
+                var targetId = item.getAttribute('data-id');
+                if (targetId === self.draggedItemId) { self.dropTargetId = null; self.dropMode = null; return; }
+                if (self.isDescendantOf(self.draggedItemId, targetId)) { self.dropTargetId = null; self.dropMode = null; return; }
+                var content = item.querySelector('.nav-item-content');
+                if (!content) return;
+                var rect = content.getBoundingClientRect();
+                var y = e.clientY - rect.top;
+                var ratio = y / rect.height;
+                if (ratio < 0.33) {
+                    item.classList.add('drop-before');
+                    self.dropTargetId = targetId;
+                    self.dropMode = 'before';
+                } else if (ratio > 0.67) {
+                    item.classList.add('drop-after');
+                    self.dropTargetId = targetId;
+                    self.dropMode = 'after';
+                } else {
+                    item.classList.add('drop-child');
+                    self.dropTargetId = targetId;
+                    self.dropMode = 'child';
+                }
+            });
+            this.editNavList.addEventListener('drop', function(e) {
+                e.preventDefault();
+                var draggedId = self.draggedItemId;
+                var targetId = self.dropTargetId;
+                var mode = self.dropMode;
+                self.draggedItemId = null;
+                self.dropTargetId = null;
+                self.dropMode = null;
+                if (draggedId && targetId && mode) {
+                    self.moveItemByDrop(draggedId, targetId, mode);
+                }
+            });
+        }
+
+        isDescendantOf(ancestorId, nodeId) {
+            var item = this.findItemById(nodeId);
+            if (!item) return false;
+            var walk = function(id, items) {
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].id === id) return true;
+                    if (items[i].children && walk(id, items[i].children)) return true;
+                }
+                return false;
+            };
+            var ancestor = this.findItemById(ancestorId);
+            return ancestor && ancestor.children && walk(nodeId, ancestor.children);
+        }
+
+        moveItemByDrop(draggedId, targetId, mode) {
+            var result = this.findItemWithParent(draggedId);
+            if (!result) return;
+            var targetResult = this.findItemWithParent(targetId);
+            if (!targetResult) return;
+            var item = result.item;
+            var parentArray = result.parentArray;
+            var index = result.index;
+            if (mode === 'child') {
+                var targetItem = targetResult.item;
+                if (!targetItem.children) targetItem.children = [];
+                parentArray.splice(index, 1);
+                targetItem.children.push(item);
+            } else {
+                var targetParentArray = targetResult.parentArray;
+                var targetIndex = targetResult.index;
+                if (parentArray === targetParentArray && index < targetIndex) targetIndex--;
+                parentArray.splice(index, 1);
+                var insertIndex = mode === 'before' ? targetIndex : targetIndex + 1;
+                targetParentArray.splice(insertIndex, 0, item);
+            }
+            this.saveData();
+            this.render();
+        }
+
+        renderViewMode() {
+            if (!this.navList && this.container) {
+                this.cacheElements();
+            }
+            if (this.navList) {
+                var html = this.renderNavItems(this.navData, true);
+                this.navList.innerHTML = html || '<li class="nav-item"><span class="nav-link text-only">No links. Click Edit to add.</span></li>';
+            }
+            this.attachViewModeEvents();
+            this.highlightCurrentPage();
+        }
+
+        renderNavItems(items, viewMode = false, parent = null) {
+            if (!items || !items.length) return '';
+
+            var self = this;
+            return items.map(function(item, idx) {
+                var hasChildren = item.children && item.children.length > 0;
+                var isExpanded = viewMode && hasChildren && self.expandedIds.has(item.id);
+                var collapsed = viewMode && hasChildren && !isExpanded;
+                var isSubLink = !!parent;
+                var canDemote = idx > 0;
+                var siblingCount = items.length;
+                var canMoveUp = siblingCount >= 2 && idx > 0;
+                var canMoveDown = siblingCount >= 2 && idx < siblingCount - 1;
+
+                if (viewMode) {
+                    const chevron = hasChildren
+                        ? `<button type="button" class="nav-chevron" data-id="${item.id}" aria-label="Toggle">▼</button>`
+                        : '<span class="nav-chevron" style="visibility:hidden;">▼</span>';
+                    return `
+                    <li class="nav-item has-children ${collapsed ? 'collapsed' : ''}" data-id="${item.id}">
+                        <div class="nav-item-content">
+                            ${chevron}
+                            ${self.renderLink(item)}
+                        </div>
+                        ${hasChildren ? `<ul>${self.renderNavItems(item.children, true)}</ul>` : ''}
+                    </li>
+                `;
+                }
+
+                return `
+                <li class="nav-item" data-id="${item.id}">
+                    <div class="nav-item-content" draggable="true" data-id="${item.id}">
+                        <a href="${item.url || '#'}" class="nav-link" data-id="${item.id}" draggable="false">${self.escapeHtml(item.title)}</a>
+                        <button type="button" class="item-menu-btn">⋯</button>
+                        <div class="item-context-menu" id="menu-${item.id}">
+                            <div class="menu-item">Edit</div>
+                            <div class="menu-divider"></div>
+                            ${canMoveUp ? '<div class="menu-item">Move up</div>' : ''}
+                            ${canMoveDown ? '<div class="menu-item">Move down</div>' : ''}
+                            ${canDemote ? '<div class="menu-item">Make sub link</div>' : ''}
+                            ${isSubLink ? '<div class="menu-item">Promote</div>' : ''}
+                            <div class="menu-divider"></div>
+                            <div class="menu-item">Add sub link</div>
+                            <div class="menu-divider"></div>
+                            <div class="menu-item delete">Remove</div>
+                        </div>
+                    </div>
+                    ${hasChildren ? `<ul>${self.renderNavItems(item.children, false, item)}</ul>` : ''}
+                </li>
+                `;
+            }).join('');
+        }
+
+        attachViewModeEvents() {
+            this.navList.querySelectorAll('.nav-chevron[data-id]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = btn.getAttribute('data-id');
+                    const li = btn.closest('.nav-item');
+                    if (this.expandedIds.has(id)) {
+                        this.expandedIds.delete(id);
+                        li.classList.add('collapsed');
+                    } else {
+                        this.expandedIds.add(id);
+                        li.classList.remove('collapsed');
+                    }
+                    this.saveExpandedState();
+                });
+            });
+        }
+
+        renderLink(item) {
+            const linkClass = `nav-link ${item.type === 'text' ? 'text-only' : ''}`;
+            const href = item.type === 'link' && item.url ? item.url : '#';
+            const target = item.openInNewTab ? '_blank' : '_top';
+            const rel = item.openInNewTab ? 'noopener noreferrer' : '';
+
+            if (item.type === 'link' && item.url) {
+                return `<a href="${href}" class="${linkClass}" target="${target}" rel="${rel}" data-id="${item.id}">${this.escapeHtml(item.title)}</a>`;
+            }
+            return `<span class="${linkClass}" data-id="${item.id}">${this.escapeHtml(item.title)}</span>`;
+        }
+
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        getPath(url) {
+            if (!url || url === '#') return '';
+            const u = url.trim().replace(/\/$/, '');
+            try {
+                if (u.startsWith('http')) return new URL(u).pathname.replace(/\/$/, '') || '/';
+                return u || '/';
+            } catch (e) {
+                return u || '/';
+            }
+        }
+
+        getActivePathIds() {
+            const path = [];
+            const currentPath = this.getPath(window.location.href) || (window.location.pathname || '/').replace(/\/$/, '') || '/';
+            const collectPath = (items, acc) => {
+                for (const item of items) {
+                    const itemPath = this.getPath(item.url);
+                    if (item.type === 'link' && itemPath && itemPath === currentPath) {
+                        acc.push(item.id);
+                        return true;
+                    }
+                    if (item.children && collectPath(item.children, acc)) {
+                        acc.unshift(item.id);
+                        return true;
+                    }
+                }
+                return false;
+            };
+            collectPath(this.navData, path);
+            return path;
+        }
+
+        highlightCurrentPage() {
+            if (!this.navList) return;
+            const pathIds = this.getActivePathIds();
+            this.navList.querySelectorAll('.nav-item-content').forEach(el => {
+                el.classList.remove('active-link', 'active-parent');
+            });
+            this.navList.querySelectorAll('.nav-item').forEach(li => {
+                const id = li.getAttribute('data-id');
+                const content = li.querySelector('.nav-item-content');
+                if (!content) return;
+                if (pathIds[pathIds.length - 1] === id) {
+                    content.classList.add('active-link');
+                } else if (pathIds.includes(id)) {
+                    content.classList.add('active-parent');
+                }
+            });
+            pathIds.forEach(id => this.expandedIds.add(id));
+            this.saveExpandedState();
+        }
+
+        toggleMenu(id, event) {
+            if (event) event.stopPropagation();
+            this.closeAllMenus();
+            var menu = document.getElementById('menu-' + id);
+            if (!menu) return;
+            menu.style.left = '';
+            menu.style.top = '';
+            menu.style.right = '';
+            menu.classList.add('show');
+            this.currentMenuId = id;
+        }
+
+        closeAllMenus() {
+            document.querySelectorAll('.item-context-menu').forEach(menu => menu.classList.remove('show'));
+            this.currentMenuId = null;
+        }
+
+        validateDialog() {
+            if (!this.dialogTitle || !this.dialogSave) return;
+            const title = (this.dialogTitle.value || '').trim();
+            const url = (this.dialogUrl && this.dialogUrl.value || '').trim();
+            const type = this.dialogType ? this.dialogType.value : 'link';
+            const needUrl = type === 'link';
+            const valid = title.length > 0 && (!needUrl || url.length > 0);
+            this.dialogSave.disabled = !valid;
+        }
+
+        addRootLink() {
+            console.log('[CustomNav] addRootLink called, dialog=', !!this.dialog);
+            this.currentEditItem = null;
+            this.editingItem = null;
+            if (this.dialogTitleEl) this.dialogTitleEl.textContent = 'Add';
+            this.dialogTitle.value = '';
+            this.dialogUrl.value = '';
+            this.dialogNewTab.checked = false;
+            this.dialogType.value = 'link';
+            this.openDialog();
+            this.validateDialog();
+        }
+
+        addSubLink(parentId) {
+            this.closeAllMenus();
+            this.currentEditItem = parentId;
+            this.editingItem = null;
+            if (this.dialogTitleEl) this.dialogTitleEl.textContent = 'Add';
+            this.dialogTitle.value = '';
+            this.dialogUrl.value = '';
+            this.dialogNewTab.checked = false;
+            this.dialogType.value = 'link';
+            this.openDialog();
+            this.validateDialog();
+        }
+
+        editItem(id) {
+            this.closeAllMenus();
+            const item = this.findItemById(id);
+            if (item) {
+                this.editingItem = id;
+                this.currentEditItem = null;
+                if (this.dialogTitleEl) this.dialogTitleEl.textContent = 'Edit';
+                this.dialogTitle.value = item.title || '';
+                this.dialogUrl.value = item.url || '';
+                this.dialogNewTab.checked = item.openInNewTab || false;
+                this.dialogType.value = item.type || 'link';
+                this.openDialog();
+                this.validateDialog();
+            }
+        }
+
+        saveLink() {
+            const title = this.dialogTitle.value.trim();
+            if (!title) {
+                alert('Enter link title');
+                return;
+            }
+
+            const linkData = {
+                title: title,
+                url: this.dialogUrl.value.trim(),
+                openInNewTab: this.dialogNewTab.checked,
+                type: this.dialogType.value,
+                children: []
+            };
+
+            if (this.editingItem) {
+                const item = this.findItemById(this.editingItem);
+                if (item) {
+                    item.title = linkData.title;
+                    item.url = linkData.url;
+                    item.openInNewTab = linkData.openInNewTab;
+                    item.type = linkData.type;
+                }
+                this.editingItem = null;
+            } else {
+                const newItem = {
+                    id: this.generateId(),
+                    ...linkData
+                };
+                if (this.currentEditItem) {
+                    const parent = this.findItemById(this.currentEditItem);
+                    if (parent) {
+                        if (!parent.children) parent.children = [];
+                        parent.children.push(newItem);
+                        this.expandedIds.add(parent.id);
+                        this.saveExpandedState();
+                    }
+                    this.currentEditItem = null;
+                } else {
+                    this.navData.push(newItem);
+                }
+            }
+
+            this.closeDialog();
+            this.saveData();
+            this.render();
+        }
+
+        deleteItem(id) {
+            this.closeAllMenus();
+            if (confirm('Remove this item?')) {
+                const removeRecursive = (items) => {
+                    const index = items.findIndex(item => item.id === id);
+                    if (index !== -1) {
+                        items.splice(index, 1);
+                        return true;
+                    }
+
+                    for (let item of items) {
+                        if (item.children && item.children.length > 0) {
+                            if (removeRecursive(item.children)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+
+                removeRecursive(this.navData);
+                this.saveData();
+                this.render();
+            }
+        }
+
+        promoteSubLink(id) {
+            this.closeAllMenus();
+            var result = this.findItemWithParent(id);
+            if (!result) return;
+
+            var item = result.item, parent = result.parent, parentArray = result.parentArray, index = result.index;
+            if (!parent) return;
+
+            parentArray.splice(index, 1);
+
+            var grandParent = this.findParentOf(this.navData, parent);
+            if (grandParent) {
+                var parentIndex = grandParent.children.indexOf(parent);
+                grandParent.children.splice(parentIndex + 1, 0, item);
+            } else {
+                var rootIndex = this.navData.indexOf(parent);
+                this.navData.splice(rootIndex + 1, 0, item);
+            }
+            this.saveData();
+            this.render();
+        }
+
+        demoteToSubLink(id) {
+            this.closeAllMenus();
+            var result = this.findItemWithParent(id);
+            if (!result) return;
+
+            var item = result.item, parentArray = result.parentArray, index = result.index;
+            if (index <= 0) return;
+
+            var previousItem = parentArray[index - 1];
+            if (!previousItem.children) previousItem.children = [];
+
+            parentArray.splice(index, 1);
+            previousItem.children.unshift(item);
+
+            this.saveData();
+            this.render();
+        }
+
+        moveUp(id) {
+            this.closeAllMenus();
+            this.moveItem(id, 'up');
+        }
+
+        moveDown(id) {
+            this.closeAllMenus();
+            this.moveItem(id, 'down');
+        }
+
+        moveItem(id, direction) {
+            const result = this.findItemWithParent(id);
+            if (!result) return;
+
+            const { parentArray, index } = result;
+
+            if (direction === 'up' && index > 0) {
+                [parentArray[index - 1], parentArray[index]] = [parentArray[index], parentArray[index - 1]];
+            } else if (direction === 'down' && index < parentArray.length - 1) {
+                [parentArray[index + 1], parentArray[index]] = [parentArray[index], parentArray[index + 1]];
+            } else {
+                return;
+            }
+
+            this.saveData();
+            this.render();
+        }
+
+        findItemById(id, items = this.navData) {
+            for (let item of items) {
+                if (item.id === id) return item;
+                if (item.children) {
+                    const found = this.findItemById(id, item.children);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        findItemWithParent(id, items = this.navData, parent = null) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.id === id) {
+                    return { item, parent, parentArray: items, index: i };
+                }
+                if (item.children) {
+                    const result = this.findItemWithParent(id, item.children, item);
+                    if (result) return result;
+                }
+            }
+            return null;
+        }
+
+        findParentOf(items, child) {
+            for (let item of items) {
+                if (item.children && item.children.includes(child)) {
+                    return item;
+                }
+                if (item.children) {
+                    const found = this.findParentOf(item.children, child);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        closeDialog() {
+            if (this.dialog) {
+                this.dialog.style.setProperty('display', 'none', 'important');
+                this.dialog.classList.remove('show');
+            }
+            this.currentEditItem = null;
+            this.editingItem = null;
+        }
+    }
+
+    function initNav() {
+        try {
+            window.nav = new CustomNavigation();
+            console.log('[CustomNav] window.nav assigned:', !!window.nav);
+        } catch (err) {
+            console.warn('CustomNavigation init:', err);
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNav);
+    } else {
+        initNav();
+    }
+</script>
